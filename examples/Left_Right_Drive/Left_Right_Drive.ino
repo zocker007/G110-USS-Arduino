@@ -18,7 +18,7 @@ void setup() {
   slaves[0] = 0x1;
   slaves[1] = 0x2;
 
-  quick_commissioning_t motor_data;
+  quickCommissioning_t motor_data;
   motor_data.powerSetting = POWER_SETTING_EUROPE;
   motor_data.motorVoltage = 230;
   motor_data.motorCurrent = 1.9f;
