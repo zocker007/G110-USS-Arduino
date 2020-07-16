@@ -16,11 +16,14 @@ USS::USS()
     actualSlave = 0;
     memset((void *)paramValue, 0, sizeof(paramValue));
     slaves = nullptr;
-    captureFlag = false;
+    nextSend = 0;
+    period = 0;
 }
 
 void USS::begin(long speed, char *pslaves, byte pnrSlaves, int pdePin)
 {
+    int telegramRuntime;
+
     if(pslaves == nullptr)
         return;
 
@@ -33,39 +36,7 @@ void USS::begin(long speed, char *pslaves, byte pnrSlaves, int pdePin)
     Serial1.setTimeout(telegramRuntime + MAX_RESP_DELAY_TIME_MS);
     pinMode(dePin,OUTPUT);
     digitalWrite(dePin, HIGH);
-    setupTimer(telegramRuntime * 2 + (START_DELAY_LENGTH_CHARACTERS * characterRuntime / 1000) + MAX_RESP_DELAY_TIME_MS + MASTER_COMPUTE_DELAY_MS);
-}
-
-void USS::setupTimer(int msPeriod) const
-{
-    cli(); //Lösche globales Interrupt-Enable-Bit
-    stopTimer();
-    TCCR1A = 0; //Löschen des TCCR1A-Registers
-    //CTC-Mode aktivieren
-    TCCR1B = (1 << WGM13) | (1 << WGM12);  //Setze CTC-Mode (Waveform Generation Mode)
-    // Timer TOP setzen
-    ICR1 = msPeriod * 15.6f; //Setzen des ermittelten Vergleichswertes
-    // Timer/Counter Interrupt Mask Register setzen
-    TIMSK1 |= (1 << ICIE1); //Bit Input Capture Interrupt Enable setzen
-    startTimer();
-}
-
-void USS::stopTimer() const
-{
-    TCCR1B &= ~((1 << CS12) | (1 << CS10));  //Lösche CS10 und CS12 (Clock Select)
-}
-
-void USS::startTimer() const
-{
-    TCNT1 = 0;  //Timer Counter Register löschen
-    resumeTimer();
-    sei(); //Setze globales Interrupt-Enable-Bit
-}
-
-void USS::resumeTimer() const
-{
-    //Vorteiler (Prescaler) definieren (Vorteiler = 1024)
-    TCCR1B |= (1 << CS12) | (1 << CS10);  //Setze CS10 und CS12 (Clock Select)
+    period = telegramRuntime * 2 + (START_DELAY_LENGTH_CHARACTERS * characterRuntime / 1000) + MAX_RESP_DELAY_TIME_MS + MASTER_COMPUTE_DELAY_MS;
 }
 
 int USS::setParameter(uint16_t param, uint16_t value, byte slaveIndex)
@@ -114,7 +85,7 @@ int USS::setParameter(uint16_t param, uint32_t value, byte slaveIndex)
 
 int USS::setParameter(uint16_t param, float value, byte slaveIndex)
 {
-    parameter p;
+    parameter_t p;
 
     p.f32 = value;
 
@@ -181,12 +152,12 @@ byte USS::BCC(volatile byte buffer[], int length) const
 
 void USS::send()
 {
-    while(!captureFlag);
+    while(!(millis() > nextSend && (millis() - nextSend) < 10000));
+
+    nextSend = millis() + period;
 
     if(actualSlave == nrSlaves)
         actualSlave = 0;
-
-    Serial.println(actualSlave);
 
     sendBuffer[2] = slaves[actualSlave] & ADDR_BYTE_ADDR_MASK;
 
@@ -229,7 +200,6 @@ void USS::send()
 
 int USS::receive()
 {
-    captureFlag = false;
     int ret = 0;
 
     if(Serial1.readBytes((byte *)recvBuffer, BUFFER_LENGTH) == BUFFER_LENGTH &&
@@ -243,9 +213,17 @@ int USS::receive()
 
         if(paramValue[0][actualSlave] != PARAM_VALUE_EMPTY)
         {
-            if(((paramValue[0][actualSlave] & PKE_WORD_AK_MASK) == PKE_WORD_AK_CHW_PWE && ((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) != PKE_WORD_AK_TRW_PWE) ||
-               ((paramValue[0][actualSlave] & PKE_WORD_AK_MASK) == PKE_WORD_AK_CHD_PWE && ((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) != PKE_WORD_AK_TRD_PWE))
+            if(((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_NO_RESP)
+                ret = -1;
+            if(((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_NO_RIGHTS)
                 ret = -2;
+            if(((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_CANT_EXECUTE)
+            {
+                ret = recvBuffer[10] | recvBuffer[9] << 8;
+
+                if(!ret)
+                    ret = -3;   // 0 is error code for illegal parameter number
+            }
 
             paramValue[0][actualSlave] = PARAM_VALUE_EMPTY;
         }
@@ -259,14 +237,4 @@ int USS::receive()
     actualSlave++;
     
     return ret;
-}
-
-void USS::setCaptureFlag()
-{
-    captureFlag = true;
-}
-
-ISR(TIMER1_CAPT_vect)
-{
-    uss.setCaptureFlag();
 }

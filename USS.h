@@ -119,7 +119,6 @@ class USS
 
     void send();
     int receive();
-    void setCaptureFlag();
 
     private:
 
@@ -127,12 +126,8 @@ class USS
     {
         uint32_t u32;
         float f32;
-    } parameter;
+    } parameter_t;
     
-    void setupTimer(int msPeriod) const;
-    void stopTimer() const;
-    void startTimer() const;
-    void resumeTimer() const;
     byte BCC(volatile byte buffer[], int length) const;
 
     char *slaves;
@@ -146,10 +141,10 @@ class USS
     uint16_t ctlword[MAX_SLAVES];
     uint16_t statusword[MAX_SLAVES];
     uint16_t paramValue[PKW_LENGTH_CHARACTERS / 2][MAX_SLAVES];
-    int telegramRuntime;
+    unsigned long nextSend;
+    unsigned long period;
     int characterRuntime;
     int dePin;
-    volatile bool captureFlag;
 };
 
 #endif

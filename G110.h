@@ -139,14 +139,14 @@ typedef struct
     float OFF3rampdownTime;
     uint16_t ctlMode;
     uint16_t endQuickComm;
-} quick_commissioning_t;
+} quickCommissioning_t;
 
 class G110
 {
     public:
 
     G110();
-    int start(USS *pinterface, quick_commissioning_t quick_comm_data, byte pindex);
+    int start(USS *pinterface, quickCommissioning_t quickCommData, byte pindex);
     void setFrequency(float freq);
     void setON();
     void setOFF1();

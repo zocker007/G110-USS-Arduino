@@ -7,43 +7,43 @@ G110::G110()
     index = 0;
 }
 
-int G110::start(USS *pinterface, quick_commissioning_t quick_comm_data, byte pindex)
+int G110::start(USS *pinterface, quickCommissioning_t quickCommData, byte pindex)
 {
     if(pinterface == nullptr)
         return -1;
 
     interface = pinterface;
-    refFreq = quick_comm_data.motorFreq;
+    refFreq = quickCommData.motorFreq;
     index = pindex;
     int err = 0;
 
     err += setParameter(PARAM_NR_USER_ACCESS_LEVEL, USER_ACCESS_LEVEL_EXPERT);
     err += setParameter(PARAM_NR_USS_PKW_LENGTH, USS_PKW_LENGTH_4_WORDS);
     err += setParameter(PARAM_NR_COMMISSIONING_PARAM, QUICK_COMMISSIONING_QUICK_COMM);
-    err += setParameter(PARAM_NR_POWER_SETING, quick_comm_data.powerSetting);
-    err += setParameter(PARAM_NR_MOTOR_VOLTAGE_V, quick_comm_data.motorVoltage);
-    err += setParameter(PARAM_NR_MOTOR_CURRENT_A, quick_comm_data.motorCurrent);
-    err += setParameter(PARAM_NR_MOTOR_POWER_KW_HP, quick_comm_data.motorPower);
+    err += setParameter(PARAM_NR_POWER_SETING, quickCommData.powerSetting);
+    err += setParameter(PARAM_NR_MOTOR_VOLTAGE_V, quickCommData.motorVoltage);
+    err += setParameter(PARAM_NR_MOTOR_CURRENT_A, quickCommData.motorCurrent);
+    err += setParameter(PARAM_NR_MOTOR_POWER_KW_HP, quickCommData.motorPower);
 
-    if(quick_comm_data.powerSetting == POWER_SETTING_NORTH_AMERICA_HP)
-        err += setParameter(PARAM_NR_MOTOR_EFFICIENCY_FACTOR, quick_comm_data.motorEff);
+    if(quickCommData.powerSetting == POWER_SETTING_NORTH_AMERICA_HP)
+        err += setParameter(PARAM_NR_MOTOR_EFFICIENCY_FACTOR, quickCommData.motorEff);
     else
-        err += setParameter(PARAM_NR_MOTOR_COS_PHI, quick_comm_data.motorCosPhi);
+        err += setParameter(PARAM_NR_MOTOR_COS_PHI, quickCommData.motorCosPhi);
 
-    err += setParameter(PARAM_NR_MOTOR_FREQ_HZ, quick_comm_data.motorFreq);
-    err += setParameter(PARAM_NR_MOTOR_SPEED_PER_MINUTE, quick_comm_data.motorSpeed);
-    err += setParameter(PARAM_NR_MOTOR_COOLING, quick_comm_data.motorCooling);
-    err += setParameter(PARAM_NR_MOTOR_OVERLOAD_FACTOR, quick_comm_data.motorOverload);
-    err += setParameter(PARAM_NR_SEL_CMD_SOURCE, quick_comm_data.cmdSource);
-    err += setParameter(PARAM_NR_SEL_FREQ_SETPOINT, quick_comm_data.setpointSource);
-    err += setParameter(PARAM_NR_MIN_FREQ_HZ, quick_comm_data.minFreq);
-    err += setParameter(PARAM_NR_MAX_FREQ_HZ, quick_comm_data.maxFreq);
-    err += setParameter(PARAM_NR_RAMP_UP_TIME_S, quick_comm_data.rampupTime);
-    err += setParameter(PARAM_NR_RAMP_DOWN_TIME_S, quick_comm_data.rampdownTime);
-    err += setParameter(PARAM_NR_OFF3_RAMP_DOWN_TIME_S, quick_comm_data.OFF3rampdownTime);
-    err += setParameter(PARAM_NR_CTL_MODE, quick_comm_data.ctlMode);
-    err += setParameter(PARAM_NR_CALC_MOTOR_PARAMS, CALC_MOTOR_PARAMS_COMPLETE);
+    err += setParameter(PARAM_NR_MOTOR_FREQ_HZ, quickCommData.motorFreq);
+    err += setParameter(PARAM_NR_MOTOR_SPEED_PER_MINUTE, quickCommData.motorSpeed);
+    err += setParameter(PARAM_NR_MOTOR_COOLING, quickCommData.motorCooling);
+    err += setParameter(PARAM_NR_MOTOR_OVERLOAD_FACTOR, quickCommData.motorOverload);
+    err += setParameter(PARAM_NR_SEL_CMD_SOURCE, quickCommData.cmdSource);
+    err += setParameter(PARAM_NR_SEL_FREQ_SETPOINT, quickCommData.setpointSource);
+    err += setParameter(PARAM_NR_MIN_FREQ_HZ, quickCommData.minFreq);
+    err += setParameter(PARAM_NR_MAX_FREQ_HZ, quickCommData.maxFreq);
+    err += setParameter(PARAM_NR_RAMP_UP_TIME_S, quickCommData.rampupTime);
+    err += setParameter(PARAM_NR_RAMP_DOWN_TIME_S, quickCommData.rampdownTime);
+    err += setParameter(PARAM_NR_OFF3_RAMP_DOWN_TIME_S, quickCommData.OFF3rampdownTime);
+    err += setParameter(PARAM_NR_CTL_MODE, quickCommData.ctlMode);
     err += setParameter(PARAM_NR_COMMISSIONING_PARAM, QUICK_COMMISSIONING_READY);
+    err += setParameter(PARAM_NR_CALC_MOTOR_PARAMS, CALC_MOTOR_PARAMS_COMPLETE);
 
     if(!err)
         setCtlFlag(CTL_WORD_ENABLE_ENABLE | CTL_WORD_INHIBIT_RAMP_OP_COND |
