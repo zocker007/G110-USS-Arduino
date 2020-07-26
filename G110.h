@@ -1,12 +1,12 @@
 /**
-  * copyright (c) 2020, Merlin Krümmel
+  * copyright (c) 2020, Merlin Krï¿½mmel
   * SPDX-License-Identifier: LGPL-3.0-or-later
   */
 
 /**
   * This library is free software: you can redistribute it and/or modify
   * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, version 3 or later.
+  * the Free Software Foundation, version 3 or (at your option) any later version.
   *
   * This program is distributed in the hope that it will be useful, but
   * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,9 +20,9 @@
 /**
   *   @file   G110.h
   *
-  *   @brief  class definition for SINAMICS G100 drive inverter
+  *   @brief  class definition for SINAMICS G110 drive inverter
   *
-  *   @author Merlin Krümmel
+  *   @author Merlin Krï¿½mmel
   *
   *   @date   22.07.2020
   */
@@ -175,7 +175,7 @@ class G110
     public:
 
     G110();
-    int start(USS *pinterface, quickCommissioning_t quickCommData, byte pindex);
+    int begin(USS *pinterface, quickCommissioning_t &quickCommData, byte pindex);
     void setFrequency(float freq);
     void setON();
     void setOFF1();

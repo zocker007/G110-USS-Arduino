@@ -6,7 +6,7 @@
 /**
   * This library is free software: you can redistribute it and/or modify
   * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, version 3 or later.
+  * the Free Software Foundation, version 3 or (at your option) any later version.
   *
   * This program is distributed in the hope that it will be useful, but
   * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -38,14 +38,11 @@ USS uss;
 G110 left;
 G110 right;
 
-char slaves[NR_SLAVES] = {0};
-
 void setup() {
 
   Serial.begin(115200);
   // put your setup code here, to run once:
-  slaves[0] = 0x1;
-  slaves[1] = 0x2;
+  char slaves[NR_SLAVES] = { 0x1, 0x2 };
 
   quickCommissioning_t motor_data;
   motor_data.powerSetting = POWER_SETTING_EUROPE;
@@ -72,8 +69,8 @@ void setup() {
   delay(2000);
 
 //  left.reset();
-  left.start(&uss, motor_data, 0);
-  right.start(&uss, motor_data, 1);
+  left.begin(&uss, motor_data, 0);
+  right.begin(&uss, motor_data, 1);
 
   left.setParameter(PARAM_NR_PULSE_FREQ_KHZ, (unsigned short) 16);
   left.setParameter(PARAM_NR_ROUNDING_TIME_S, 1.0f);

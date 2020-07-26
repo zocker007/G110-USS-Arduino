@@ -1,12 +1,12 @@
 /**
-  * copyright (c) 2020, Merlin Krümmel
+  * copyright (c) 2020, Merlin Krï¿½mmel
   * SPDX-License-Identifier: LGPL-3.0-or-later
   */
 
 /**
   * This library is free software: you can redistribute it and/or modify
   * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, version 3 or later.
+  * the Free Software Foundation, version 3 or (at your option) any later version.
   *
   * This program is distributed in the hope that it will be useful, but
   * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,23 +20,20 @@
 /**
   *   @file   G110.cpp
   *
-  *   @brief  class implementation for SINAMICS G100 drive inverter
+  *   @brief  class implementation for SINAMICS G110 drive inverter
   *
-  *   @author Merlin Krümmel
+  *   @author Merlin Krï¿½mmel
   *
   *   @date   22.07.2020
   */
 
 #include "G110.h"
 
-G110::G110()
+G110::G110() : interface(nullptr), refFreq(0.0), index(0)
 {
-    interface = nullptr;
-    refFreq = 0.0f;
-    index = 0;
 }
 
-int G110::start(USS *pinterface, quickCommissioning_t quickCommData, byte pindex)
+int G110::begin(USS *pinterface, quickCommissioning_t &quickCommData, byte pindex)
 {
     if(pinterface == nullptr)
         return -1;

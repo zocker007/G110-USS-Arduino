@@ -1,12 +1,12 @@
 /**
-  * copyright (c) 2020, Merlin Krümmel
+  * copyright (c) 2020, Merlin Krï¿½mmel
   * SPDX-License-Identifier: LGPL-3.0-or-later
   */
 
 /**
   * This library is free software: you can redistribute it and/or modify
   * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, version 3 or later.
+  * the Free Software Foundation, version 3 or (at your option) any later version.
   *
   * This program is distributed in the hope that it will be useful, but
   * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,7 +22,7 @@
   *
   *   @brief  class definition for Siemens USS protocol
   *
-  *   @author Merlin Krümmel
+  *   @author Merlin Krï¿½mmel
   *
   *   @date   22.07.2020
   */
@@ -115,7 +115,7 @@
 #define STATUS_WORD_F_N_REACHED_REACHED         0x0400
 #define STATUS_WORD_F_N_REACHED_FALLEN_BELOW    0x0000
 
-#define MAX_SLAVES                 2
+#define USS_SLAVES                 2
 
 #define PZD_ANZ                    1
 #define PZD_LENGTH_CHARACTERS      4
@@ -129,14 +129,14 @@
 #define START_DELAY_LENGTH_CHARACTERS 2
 #define TELEGRAM_OVERHEAD_CHARACTERS 4
 
-#define BUFFER_LENGTH               (TELEGRAM_OVERHEAD_CHARACTERS + (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ))
+#define USS_BUFFER_LENGTH               (TELEGRAM_OVERHEAD_CHARACTERS + (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ))
 
 class USS
 {
     public:
 
     USS();
-    void begin(long speed, char *pslaves, byte pnrSlaves, int dePin);
+    int begin(long speed, const char pslaves[], byte pnrSlaves, int dePin);
     int setParameter(uint16_t param, uint16_t value, byte slaveIndex);
     int setParameter(uint16_t param, uint32_t value, byte slaveIndex);
     int setParameter(uint16_t param, float value, byte slaveIndex);
@@ -157,19 +157,18 @@ class USS
         float f32;
     } parameter_t;
     
-    byte BCC(volatile byte buffer[], int length) const;
+    byte BCC(const byte buffer[], int length) const;
 
-    char *slaves;
-    byte paramError;
+    char slaves[USS_SLAVES];
     byte nrSlaves;
     byte actualSlave;
-    byte sendBuffer[BUFFER_LENGTH];
-    byte recvBuffer[BUFFER_LENGTH];
-    uint16_t mainsetpoint[MAX_SLAVES];
-    uint16_t mainactualvalue[MAX_SLAVES];
-    uint16_t ctlword[MAX_SLAVES];
-    uint16_t statusword[MAX_SLAVES];
-    uint16_t paramValue[PKW_LENGTH_CHARACTERS / 2][MAX_SLAVES];
+    byte sendBuffer[USS_BUFFER_LENGTH];
+    byte recvBuffer[USS_BUFFER_LENGTH];
+    uint16_t mainsetpoint[USS_SLAVES];
+    uint16_t mainactualvalue[USS_SLAVES];
+    uint16_t ctlword[USS_SLAVES];
+    uint16_t statusword[USS_SLAVES];
+    uint16_t paramValue[PKW_LENGTH_CHARACTERS / 2][USS_SLAVES];
     unsigned long nextSend;
     unsigned long period;
     int characterRuntime;

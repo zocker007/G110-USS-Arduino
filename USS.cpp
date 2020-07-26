@@ -1,12 +1,12 @@
 /**
-  * copyright (c) 2020, Merlin Krümmel
+  * copyright (c) 2020, Merlin Krï¿½mmel
   * SPDX-License-Identifier: LGPL-3.0-or-later
   */
 
 /**
   * This library is free software: you can redistribute it and/or modify
   * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, version 3 or later.
+  * the Free Software Foundation, version 3 or (at your option) any later version.
   *
   * This program is distributed in the hope that it will be useful, but
   * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,7 +22,7 @@
   *
   *   @brief  class implementation for Siemens USS protocol
   *
-  *   @author Merlin Krümmel
+  *   @author Merlin Krï¿½mmel
   *
   *   @date   22.07.2020
   */
@@ -31,41 +31,46 @@
 
 extern USS uss;
 
-USS::USS()
+USS::USS() : slaves{0},
+nrSlaves(0),
+actualSlave(0),
+sendBuffer{0},
+recvBuffer{0},
+mainsetpoint{0},
+mainactualvalue{0},
+ctlword{0},
+statusword{0},
+paramValue{{0}, {0}},
+nextSend(0),
+period(0),
+characterRuntime(0),
+dePin(-1)
 {
-    paramError = 0;
-    memset((void *)sendBuffer, 0, sizeof(sendBuffer));
     sendBuffer[0] = STX_BYTE_STX;
     sendBuffer[1] = (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ) + 2; // 2 for ADR and BCC bytes
-    memset((void *)recvBuffer, 0, sizeof(recvBuffer));
-    memset((void *)mainsetpoint, 0, sizeof(mainsetpoint));
-    memset((void *)ctlword, 0, sizeof(ctlword));
-    memset((void *)mainactualvalue, 0, sizeof(mainactualvalue));
-    memset((void *)statusword, 0, sizeof(statusword));
-    actualSlave = 0;
-    memset((void *)paramValue, 0, sizeof(paramValue));
-    slaves = nullptr;
-    nextSend = 0;
-    period = 0;
 }
 
-void USS::begin(long speed, char *pslaves, byte pnrSlaves, int pdePin)
+int USS::begin(long speed, const char pslaves[], byte pnrSlaves, int pdePin)
 {
     int telegramRuntime;
 
-    if(pslaves == nullptr)
-        return;
+    if(pnrSlaves > USS_SLAVES || pslaves == nullptr)
+        return -1;
 
-    slaves = pslaves;
+    for(int i = 0; i < pnrSlaves; i++)
+        slaves[i] = pslaves[i];
+
     nrSlaves = pnrSlaves;
     dePin = pdePin;
     characterRuntime = CHARACTER_RUNTIME_BASE_US / (speed / BAUDRATE_BASE);
-    telegramRuntime = BUFFER_LENGTH * characterRuntime * 1.5f / 1000;
+    telegramRuntime = USS_BUFFER_LENGTH * characterRuntime * 1.5f / 1000;
     Serial1.begin(speed, SERIAL_8E1);
     Serial1.setTimeout(telegramRuntime + MAX_RESP_DELAY_TIME_MS);
     pinMode(dePin,OUTPUT);
     digitalWrite(dePin, HIGH);
     period = telegramRuntime * 2 + (START_DELAY_LENGTH_CHARACTERS * characterRuntime / 1000) + MAX_RESP_DELAY_TIME_MS + MASTER_COMPUTE_DELAY_MS;
+
+    return 0;
 }
 
 int USS::setParameter(uint16_t param, uint16_t value, byte slaveIndex)
@@ -79,7 +84,6 @@ int USS::setParameter(uint16_t param, uint16_t value, byte slaveIndex)
     paramValue[1][slaveIndex] = 0;
     paramValue[2][slaveIndex] = 0;
     paramValue[3][slaveIndex] = value;
-    paramError = 0;
 
     while(paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
     {
@@ -101,7 +105,6 @@ int USS::setParameter(uint16_t param, uint32_t value, byte slaveIndex)
     paramValue[1][slaveIndex] = 0;
     paramValue[2][slaveIndex] = (value >> 16) & 0xFFFF;
     paramValue[3][slaveIndex] = value & 0xFFFF;
-    paramError = 0;
 
     while(paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
     {
@@ -169,7 +172,7 @@ bool USS::checkStatusFlag(byte slaveIndex, uint16_t flag) const
     return ret;
 }
 
-byte USS::BCC(volatile byte buffer[], int length) const
+byte USS::BCC(const byte buffer[], int length) const
 {
     byte ret = 0;
 
@@ -218,10 +221,10 @@ void USS::send()
     sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 5] = (mainsetpoint[actualSlave] >> 8) & 0xFF;
     sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 6] = mainsetpoint[actualSlave] & 0xFF;
 
-    sendBuffer[BUFFER_LENGTH - 1] = BCC(sendBuffer, BUFFER_LENGTH - 1);
+    sendBuffer[USS_BUFFER_LENGTH - 1] = BCC(sendBuffer, USS_BUFFER_LENGTH - 1);
 
-   Serial1.write(sendBuffer, BUFFER_LENGTH);
-   Serial1.flush();
+    Serial1.write(sendBuffer, USS_BUFFER_LENGTH);
+    Serial1.flush();
 
     delayMicroseconds(START_DELAY_LENGTH_CHARACTERS * characterRuntime);
     digitalWrite(dePin, LOW);
@@ -231,9 +234,9 @@ int USS::receive()
 {
     int ret = 0;
 
-    if(Serial1.readBytes((byte *)recvBuffer, BUFFER_LENGTH) == BUFFER_LENGTH &&
+    if(Serial1.readBytes((byte *)recvBuffer, USS_BUFFER_LENGTH) == USS_BUFFER_LENGTH &&
         recvBuffer[0] == STX_BYTE_STX && (recvBuffer[2] & ADDR_BYTE_ADDR_MASK) == (slaves[actualSlave] & ADDR_BYTE_ADDR_MASK) &&
-        BCC(recvBuffer, BUFFER_LENGTH - 1) == recvBuffer[BUFFER_LENGTH - 1])
+        BCC(recvBuffer, USS_BUFFER_LENGTH - 1) == recvBuffer[USS_BUFFER_LENGTH - 1])
     {
         statusword[actualSlave] = (recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 3] << 8) & 0xFF00;
         statusword[actualSlave] |= recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 4] & 0xFF;
