@@ -1,91 +1,92 @@
 /**
-  * copyright (c) 2020, Merlin Kr�mmel
-  * SPDX-License-Identifier: LGPL-3.0-or-later
-  */
+ * Copyright (c) 2020, Merlin Kr�mmel
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 
 /**
-  * This library is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, version 3 or (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful, but
-  * WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  * Lesser General Public License for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program. If not, see <http://www.gnu.org/licenses/>.
-  */
+ * @section LICENSE
+ * 
+ * This library is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
-  *   @file   USS.cpp
-  *
-  *   @brief  class implementation for Siemens USS protocol
-  *
-  *   @author Merlin Kr�mmel
-  *
-  *   @date   22.07.2020
-  */
+ *   @file   USS.cpp
+ *   @brief  class definition for Siemens USS protocol, implements the low level
+ *           functionality of communication protocol as baselayer for higher layers
+ *           like inverters.
+ *   @author Merlin Kr�mmel
+ *   @date   22.07.2020
+ */
 
 #include "USS.h"
 
 extern USS uss;
 
-USS::USS() : slaves{0},
-nrSlaves(0),
-actualSlave(0),
-sendBuffer{0},
-recvBuffer{0},
-mainsetpoint{0},
-mainactualvalue{0},
-ctlword{0},
-statusword{0},
-paramValue{{0}, {0}},
-nextSend(0),
-period(0),
-characterRuntime(0),
-dePin(-1)
+USS::USS() :
+    m_slaves{0},
+    m_nrSlaves(0),
+    m_actualSlave(0),
+    m_sendBuffer{0},
+    m_recvBuffer{0},
+    m_mainsetpoint{0},
+    m_mainactualvalue{0},
+    m_ctlword{0},
+    m_statusword{0},
+    m_paramValue{{0}, {0}},
+    m_nextSend(0),
+    m_period(0),
+    m_characterRuntime(0),
+    m_dePin(-1)
 {
-    sendBuffer[0] = STX_BYTE_STX;
-    sendBuffer[1] = (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ) + 2; // 2 for ADR and BCC bytes
+    m_sendBuffer[0] = STX_BYTE_STX;
+    m_sendBuffer[1] = (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ) + 2; // 2 for ADR and BCC bytes
 }
 
-int USS::begin(long speed, const char pslaves[], byte pnrSlaves, int pdePin)
+int USS::begin(const long speed, const byte slaves[], const int nrSlaves, const int dePin)
 {
     int telegramRuntime;
 
-    if(pnrSlaves > USS_SLAVES || pslaves == nullptr)
+    if(nrSlaves > USS_SLAVES || slaves == nullptr)
         return -1;
 
-    for(int i = 0; i < pnrSlaves; i++)
-        slaves[i] = pslaves[i];
+    memcpy(m_slaves, slaves, nrSlaves);
 
-    nrSlaves = pnrSlaves;
-    dePin = pdePin;
-    characterRuntime = CHARACTER_RUNTIME_BASE_US / (speed / BAUDRATE_BASE);
-    telegramRuntime = USS_BUFFER_LENGTH * characterRuntime * 1.5f / 1000;
+    m_nrSlaves = nrSlaves;
+    m_dePin = dePin;
+    m_characterRuntime = CHARACTER_RUNTIME_BASE_US / (speed / BAUDRATE_BASE);
+    telegramRuntime = USS_BUFFER_LENGTH * m_characterRuntime * 1.5f / 1000;
     Serial1.begin(speed, SERIAL_8E1);
     Serial1.setTimeout(telegramRuntime + MAX_RESP_DELAY_TIME_MS);
-    pinMode(dePin,OUTPUT);
-    digitalWrite(dePin, HIGH);
-    period = telegramRuntime * 2 + (START_DELAY_LENGTH_CHARACTERS * characterRuntime / 1000) + MAX_RESP_DELAY_TIME_MS + MASTER_COMPUTE_DELAY_MS;
+    pinMode(m_dePin,OUTPUT);
+    digitalWrite(m_dePin, HIGH);
+    m_period = telegramRuntime * 2 + (START_DELAY_LENGTH_CHARACTERS * m_characterRuntime / 1000) + MAX_RESP_DELAY_TIME_MS + MASTER_COMPUTE_DELAY_MS;
 
     return 0;
 }
 
-int USS::setParameter(uint16_t param, uint16_t value, byte slaveIndex)
+int USS::setParameter(const uint16_t param, const uint16_t value, const int slaveIndex)
 {
     int ret = 0;
 
-    if(slaveIndex >= nrSlaves)
+    if(slaveIndex >= m_nrSlaves)
         return -1;
 
-    paramValue[0][slaveIndex] = (param & PKE_WORD_PARAM_MASK) | PKE_WORD_AK_CHW_PWE;
-    paramValue[1][slaveIndex] = 0;
-    paramValue[2][slaveIndex] = 0;
-    paramValue[3][slaveIndex] = value;
+    m_paramValue[0][slaveIndex] = (param & PKE_WORD_PARAM_MASK) | PKE_WORD_AK_CHW_PWE;
+    m_paramValue[1][slaveIndex] = 0;
+    m_paramValue[2][slaveIndex] = 0;
+    m_paramValue[3][slaveIndex] = value;
 
-    while(paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
+    while(m_paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
     {
         send();
         ret = receive();
@@ -94,19 +95,19 @@ int USS::setParameter(uint16_t param, uint16_t value, byte slaveIndex)
     return ret;
 }
 
-int USS::setParameter(uint16_t param, uint32_t value, byte slaveIndex)
+int USS::setParameter(const uint16_t param, const uint32_t value, const int slaveIndex)
 {
     int ret = 0;
 
-    if(slaveIndex >= nrSlaves)
+    if(slaveIndex >= m_nrSlaves)
         return -1;
 
-    paramValue[0][slaveIndex] = (param & PKE_WORD_PARAM_MASK) | PKE_WORD_AK_CHD_PWE;
-    paramValue[1][slaveIndex] = 0;
-    paramValue[2][slaveIndex] = (value >> 16) & 0xFFFF;
-    paramValue[3][slaveIndex] = value & 0xFFFF;
+    m_paramValue[0][slaveIndex] = (param & PKE_WORD_PARAM_MASK) | PKE_WORD_AK_CHD_PWE;
+    m_paramValue[1][slaveIndex] = 0;
+    m_paramValue[2][slaveIndex] = (value >> 16) & 0xFFFF;
+    m_paramValue[3][slaveIndex] = value & 0xFFFF;
 
-    while(paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
+    while(m_paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
     {
         send();
         ret = receive();
@@ -115,7 +116,7 @@ int USS::setParameter(uint16_t param, uint32_t value, byte slaveIndex)
     return ret;
 }
 
-int USS::setParameter(uint16_t param, float value, byte slaveIndex)
+int USS::setParameter(const uint16_t param, const float value, const int slaveIndex)
 {
     parameter_t p;
 
@@ -124,55 +125,51 @@ int USS::setParameter(uint16_t param, float value, byte slaveIndex)
     return setParameter(param, p.u32, slaveIndex);
 }
 
-void USS::setMainsetpoint(uint16_t value, byte slaveIndex)
+void USS::setMainsetpoint(const uint16_t value, const int slaveIndex)
 {
-    if(slaveIndex >= nrSlaves)
+    if(slaveIndex >= m_nrSlaves)
         return;
 
-    mainsetpoint[slaveIndex] = value;
+    m_mainsetpoint[slaveIndex] = value;
 }
 
-void USS::setCtlFlag(uint16_t flags, byte slaveIndex)
+void USS::setCtlFlag(const uint16_t flags, const int slaveIndex)
 {
-    if(slaveIndex >= nrSlaves)
+    if(slaveIndex >= m_nrSlaves)
         return;
 
-    ctlword[slaveIndex] |= flags;
+    m_ctlword[slaveIndex] |= flags;
 }
 
-void USS::clearCtlFlag(uint16_t flags, byte slaveIndex)
+void USS::clearCtlFlag(const uint16_t flags, const int slaveIndex)
 {
-    if(slaveIndex >= nrSlaves)
+    if(slaveIndex >= m_nrSlaves)
         return;
 
-    ctlword[slaveIndex] &= ~flags;
+    m_ctlword[slaveIndex] &= ~flags;
 }
 
-uint16_t USS::getActualvalue(byte slaveIndex) const
+uint16_t USS::getActualvalue(const int slaveIndex) const
 {
-    if(slaveIndex >= nrSlaves)
+    if(slaveIndex >= m_nrSlaves)
         return -1;
 
     uint16_t ret;
 
-    ret = mainactualvalue[slaveIndex];
+    ret = m_mainactualvalue[slaveIndex];
 
     return ret;
 }
 
-bool USS::checkStatusFlag(byte slaveIndex, uint16_t flag) const
+bool USS::checkStatusFlag(const uint16_t flag, const int slaveIndex) const
 {
-    if(slaveIndex >= nrSlaves)
-        return -1;
+    if(slaveIndex >= m_nrSlaves)
+        return false;
 
-    uint16_t ret;
-
-    ret = (statusword[slaveIndex] & flag) != 0 ? true : false;
-
-    return ret;
+    return (m_statusword[slaveIndex] & flag) != 0 ? true : false;
 }
 
-byte USS::BCC(const byte buffer[], int length) const
+byte USS::BCC(const byte buffer[], const int length) const
 {
     byte ret = 0;
 
@@ -184,80 +181,80 @@ byte USS::BCC(const byte buffer[], int length) const
 
 void USS::send()
 {
-    while(!(millis() > nextSend && (millis() - nextSend) < 10000));
+    while(!(millis() > m_nextSend && (millis() - m_nextSend) < 10000));
 
-    nextSend = millis() + period;
+    m_nextSend = millis() + m_period;
 
-    if(actualSlave == nrSlaves)
-        actualSlave = 0;
+    if(m_actualSlave == m_nrSlaves)
+        m_actualSlave = 0;
 
-    sendBuffer[2] = slaves[actualSlave] & ADDR_BYTE_ADDR_MASK;
+    m_sendBuffer[2] = m_slaves[m_actualSlave] & ADDR_BYTE_ADDR_MASK;
 
-    if(paramValue[0][actualSlave] != PARAM_VALUE_EMPTY)
+    if(m_paramValue[0][m_actualSlave] != PARAM_VALUE_EMPTY)
     {
-        sendBuffer[3] = (paramValue[0][actualSlave] >> 8) & 0xFF;
-        sendBuffer[4] = paramValue[0][actualSlave] & 0xFF;
-        sendBuffer[5] = (paramValue[1][actualSlave] >> 8) & 0xFF;
-        sendBuffer[6] = paramValue[1][actualSlave] & 0xFF;
-        sendBuffer[7] = (paramValue[2][actualSlave] >> 8) & 0xFF;
-        sendBuffer[8] = paramValue[2][actualSlave] & 0xFF;
-        sendBuffer[9] = (paramValue[3][actualSlave] >> 8) & 0xFF;
-        sendBuffer[10] = paramValue[3][actualSlave] & 0xFF;
+        m_sendBuffer[3] = (m_paramValue[0][m_actualSlave] >> 8) & 0xFF;
+        m_sendBuffer[4] = m_paramValue[0][m_actualSlave] & 0xFF;
+        m_sendBuffer[5] = (m_paramValue[1][m_actualSlave] >> 8) & 0xFF;
+        m_sendBuffer[6] = m_paramValue[1][m_actualSlave] & 0xFF;
+        m_sendBuffer[7] = (m_paramValue[2][m_actualSlave] >> 8) & 0xFF;
+        m_sendBuffer[8] = m_paramValue[2][m_actualSlave] & 0xFF;
+        m_sendBuffer[9] = (m_paramValue[3][m_actualSlave] >> 8) & 0xFF;
+        m_sendBuffer[10] = m_paramValue[3][m_actualSlave] & 0xFF;
     }
     else
     {
-        sendBuffer[3] = 0;
-        sendBuffer[4] = 0;
-        sendBuffer[5] = 0;
-        sendBuffer[6] = 0;
-        sendBuffer[7] = 0;
-        sendBuffer[8] = 0;
-        sendBuffer[9] = 0;
-        sendBuffer[10] = 0;
+        m_sendBuffer[3] = 0;
+        m_sendBuffer[4] = 0;
+        m_sendBuffer[5] = 0;
+        m_sendBuffer[6] = 0;
+        m_sendBuffer[7] = 0;
+        m_sendBuffer[8] = 0;
+        m_sendBuffer[9] = 0;
+        m_sendBuffer[10] = 0;
     }    
 
-    sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 3] = (ctlword[actualSlave] >> 8) & 0xFF;
-    sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 4] = ctlword[actualSlave] & 0xFF;
-    sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 5] = (mainsetpoint[actualSlave] >> 8) & 0xFF;
-    sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 6] = mainsetpoint[actualSlave] & 0xFF;
+    m_sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 3] = (m_ctlword[m_actualSlave] >> 8) & 0xFF;
+    m_sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 4] = m_ctlword[m_actualSlave] & 0xFF;
+    m_sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 5] = (m_mainsetpoint[m_actualSlave] >> 8) & 0xFF;
+    m_sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 6] = m_mainsetpoint[m_actualSlave] & 0xFF;
 
-    sendBuffer[USS_BUFFER_LENGTH - 1] = BCC(sendBuffer, USS_BUFFER_LENGTH - 1);
+    m_sendBuffer[USS_BUFFER_LENGTH - 1] = BCC(m_sendBuffer, USS_BUFFER_LENGTH - 1);
 
-    Serial1.write(sendBuffer, USS_BUFFER_LENGTH);
+    Serial1.write(m_sendBuffer, USS_BUFFER_LENGTH);
     Serial1.flush();
 
-    delayMicroseconds(START_DELAY_LENGTH_CHARACTERS * characterRuntime);
-    digitalWrite(dePin, LOW);
+    delayMicroseconds(START_DELAY_LENGTH_CHARACTERS * m_characterRuntime);
+    digitalWrite(m_dePin, LOW);
 }
 
 int USS::receive()
 {
     int ret = 0;
 
-    if(Serial1.readBytes((byte *)recvBuffer, USS_BUFFER_LENGTH) == USS_BUFFER_LENGTH &&
-        recvBuffer[0] == STX_BYTE_STX && (recvBuffer[2] & ADDR_BYTE_ADDR_MASK) == (slaves[actualSlave] & ADDR_BYTE_ADDR_MASK) &&
-        BCC(recvBuffer, USS_BUFFER_LENGTH - 1) == recvBuffer[USS_BUFFER_LENGTH - 1])
+    if(Serial1.readBytes(m_recvBuffer, USS_BUFFER_LENGTH) == USS_BUFFER_LENGTH &&
+        m_recvBuffer[0] == STX_BYTE_STX && (m_recvBuffer[2] & ADDR_BYTE_ADDR_MASK) == (m_slaves[m_actualSlave] & ADDR_BYTE_ADDR_MASK) &&
+        BCC(m_recvBuffer, USS_BUFFER_LENGTH - 1) == m_recvBuffer[USS_BUFFER_LENGTH - 1])
     {
-        statusword[actualSlave] = (recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 3] << 8) & 0xFF00;
-        statusword[actualSlave] |= recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 4] & 0xFF;
-        mainactualvalue[actualSlave] = (recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 5] << 8) & 0xFF00;
-        mainactualvalue[actualSlave] |= recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 6] & 0xFF;
+        m_statusword[m_actualSlave] = (m_recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 3] << 8) & 0xFF00;
+        m_statusword[m_actualSlave] |= m_recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 4] & 0xFF;
+        m_mainactualvalue[m_actualSlave] = (m_recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 5] << 8) & 0xFF00;
+        m_mainactualvalue[m_actualSlave] |= m_recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 6] & 0xFF;
 
-        if(paramValue[0][actualSlave] != PARAM_VALUE_EMPTY)
+        if(m_paramValue[0][m_actualSlave] != PARAM_VALUE_EMPTY)
         {
-            if(((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_NO_RESP)
+            if(((m_recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_NO_RESP)
                 ret = -1;
-            if(((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_NO_RIGHTS)
+            if(((m_recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_NO_RIGHTS)
                 ret = -2;
-            if(((recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_CANT_EXECUTE)
+            if(((m_recvBuffer[3] << 8) & PKE_WORD_AK_MASK) == PKE_WORD_AK_CANT_EXECUTE)
             {
-                ret = recvBuffer[10] | recvBuffer[9] << 8;
+                ret = m_recvBuffer[10] | m_recvBuffer[9] << 8;
 
                 if(!ret)
                     ret = -3;   // 0 is error code for illegal parameter number
             }
 
-            paramValue[0][actualSlave] = PARAM_VALUE_EMPTY;
+            m_paramValue[0][m_actualSlave] = PARAM_VALUE_EMPTY;
         }
     }
     else
@@ -265,8 +262,8 @@ int USS::receive()
         ret = -1;
     }
 
-    digitalWrite(dePin, HIGH);
-    actualSlave++;
+    digitalWrite(m_dePin, HIGH);
+    m_actualSlave++;
     
     return ret;
 }

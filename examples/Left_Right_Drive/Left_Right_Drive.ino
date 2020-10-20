@@ -1,31 +1,30 @@
 /**
-  * copyright (c) 2020, Merlin Krümmel
-  * SPDX-License-Identifier: LGPL-3.0-or-later
-  */
+ * copyright (c) 2020, Merlin Krümmel
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 
 /**
-  * This library is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, version 3 or (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful, but
-  * WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  * Lesser General Public License for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program. If not, see <http://www.gnu.org/licenses/>.
-  */
+ * @section LICENSE
+ * 
+ * This library is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
-  *   @file   Left_Right_Drive.ino
-  *
-  *   @brief  example for SINAMICS G110 Arduino library
-  *
-  *   @author Merlin Krümmel
-  *
-  *   @date   22.07.2020
-  */
+ *   @file   Left_Right_Drive.ino
+ *   @brief  example for SINAMICS G110 Arduino library
+ *   @author Merlin Krümmel
+ *   @date   22.07.2020
+ */
 
 #include <G110.h>
 #include <USS.h>
@@ -42,7 +41,7 @@ void setup() {
 
   Serial.begin(115200);
   // put your setup code here, to run once:
-  char slaves[NR_SLAVES] = { 0x1, 0x2 };
+  const byte slaves[NR_SLAVES] = { 0x1, 0x2 };
 
   quickCommissioning_t motor_data;
   motor_data.powerSetting = POWER_SETTING_EUROPE;
