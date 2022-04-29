@@ -196,37 +196,37 @@
 /**
  * Number used in calculation of main setpoint from given frequency in Hz as floating point
  */
-#define FREQUENCY_CALC_BASE                 0x4000
-
-/**
- * @struct structure definition for G110 quick commissioning parameters
- */
-typedef struct
-{
-    uint16_t powerSetting;
-    uint16_t motorVoltage;
-    float motorCurrent;
-    float motorPower;
-    float motorCosPhi;
-    float motorEff;
-    float motorFreq;
-    uint16_t motorSpeed;
-    uint16_t motorCooling;
-    float motorOverload;
-    uint16_t cmdSource;
-    uint16_t setpointSource;
-    float minFreq;
-    float maxFreq;
-    float rampupTime;
-    float rampdownTime;
-    float OFF3rampdownTime;
-    uint16_t ctlMode;
-    uint16_t endQuickComm;
-} quickCommissioning_t;
+#define FREQUENCY_CALC_BASE                 0x4000U
 
 class G110
 {
     public:
+
+    /**
+     * @struct structure definition for G110 quick commissioning parameters
+     */
+    typedef struct
+    {
+        uint16_t powerSetting;
+        uint16_t motorVoltage;
+        float motorCurrent;
+        float motorPower;
+        float motorCosPhi;
+        float motorEff;
+        float motorFreq;
+        uint16_t motorSpeed;
+        uint16_t motorCooling;
+        float motorOverload;
+        uint16_t cmdSource;
+        uint16_t setpointSource;
+        float minFreq;
+        float maxFreq;
+        float rampupTime;
+        float rampdownTime;
+        float OFF3rampdownTime;
+        uint16_t ctlMode;
+        uint16_t endQuickComm;
+    } quickCommissioning_t;
 
     /**
      * @brief Constructor for G110 class, initializes the members

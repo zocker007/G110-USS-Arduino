@@ -35,7 +35,7 @@ G110::G110() :
 {
 }
 
-int G110::begin(USS *interface, const quickCommissioning_t &quickCommData, const int index)
+int G110::begin(USS *interface, const G110::quickCommissioning_t &quickCommData, const int index)
 {
     if(interface == nullptr)
         return -1;
@@ -94,7 +94,7 @@ void G110::setFrequency(float freq) const
         freq *= -1.0f;
     }
     // f[Hz] = (f(hex) / FREQUENCY_CALC_BASE) * refFreq
-    uint16_t f_hex = (freq / m_refFreq) * FREQUENCY_CALC_BASE;
+    uint16_t f_hex = static_cast<uint16_t>((freq / m_refFreq) * static_cast<float>(FREQUENCY_CALC_BASE));
 
     if(reverse)
         setCtlFlag(CTL_WORD_REVERSE_FALG);
@@ -172,7 +172,7 @@ float G110::getFrequency() const
 
     uint16_t f_hex = m_interface->getActualvalue(m_index);
     // f[Hz] = (f(hex) / FREQUENCY_CALC_BASE) * refFreq
-    return (f_hex / FREQUENCY_CALC_BASE) * m_refFreq;
+    return (static_cast<float>(f_hex) / static_cast<float>(FREQUENCY_CALC_BASE)) * m_refFreq;
 }
 
 void G110::reset() const

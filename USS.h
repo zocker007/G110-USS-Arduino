@@ -316,15 +316,6 @@ class USS
     int receive();
 
     private:
-
-    /**
-     * @union for quick conversion from float to byte representation for transmitting parameters
-     */
-    typedef union
-    {
-        uint32_t u32;
-        float f32;
-    } parameter_t;
     
     /**
      * @brief Calculates the Block Check Character (BCC) like in USS spec.

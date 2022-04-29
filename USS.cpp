@@ -104,6 +104,7 @@ int USS::setParameter(const uint16_t param, const uint32_t value, const int slav
 
     m_paramValue[0][slaveIndex] = (param & PKE_WORD_PARAM_MASK) | PKE_WORD_AK_CHD_PWE;
     m_paramValue[1][slaveIndex] = 0;
+    // USS is Big-Endian
     m_paramValue[2][slaveIndex] = (value >> 16) & 0xFFFF;
     m_paramValue[3][slaveIndex] = value & 0xFFFF;
 
@@ -118,11 +119,11 @@ int USS::setParameter(const uint16_t param, const uint32_t value, const int slav
 
 int USS::setParameter(const uint16_t param, const float value, const int slaveIndex)
 {
-    parameter_t p;
+    uint32_t u32 = 0;;
 
-    p.f32 = value;
+    memcpy(&u32, &value, sizeof(u32));
 
-    return setParameter(param, p.u32, slaveIndex);
+    return setParameter(param, u32, slaveIndex);
 }
 
 void USS::setMainsetpoint(const uint16_t value, const int slaveIndex)
@@ -192,6 +193,7 @@ void USS::send()
 
     if(m_paramValue[0][m_actualSlave] != PARAM_VALUE_EMPTY)
     {
+        // USS is Big-Endian
         m_sendBuffer[3] = (m_paramValue[0][m_actualSlave] >> 8) & 0xFF;
         m_sendBuffer[4] = m_paramValue[0][m_actualSlave] & 0xFF;
         m_sendBuffer[5] = (m_paramValue[1][m_actualSlave] >> 8) & 0xFF;
@@ -203,16 +205,10 @@ void USS::send()
     }
     else
     {
-        m_sendBuffer[3] = 0;
-        m_sendBuffer[4] = 0;
-        m_sendBuffer[5] = 0;
-        m_sendBuffer[6] = 0;
-        m_sendBuffer[7] = 0;
-        m_sendBuffer[8] = 0;
-        m_sendBuffer[9] = 0;
-        m_sendBuffer[10] = 0;
+        memset(&m_sendBuffer[3], 0, 8);
     }    
 
+    // USS is Big-Endian
     m_sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 3] = (m_ctlword[m_actualSlave] >> 8) & 0xFF;
     m_sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 4] = m_ctlword[m_actualSlave] & 0xFF;
     m_sendBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 5] = (m_mainsetpoint[m_actualSlave] >> 8) & 0xFF;
@@ -235,6 +231,7 @@ int USS::receive()
         m_recvBuffer[0] == STX_BYTE_STX && (m_recvBuffer[2] & ADDR_BYTE_ADDR_MASK) == (m_slaves[m_actualSlave] & ADDR_BYTE_ADDR_MASK) &&
         BCC(m_recvBuffer, USS_BUFFER_LENGTH - 1) == m_recvBuffer[USS_BUFFER_LENGTH - 1])
     {
+        // USS is Big-Endian
         m_statusword[m_actualSlave] = (m_recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 3] << 8) & 0xFF00;
         m_statusword[m_actualSlave] |= m_recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 4] & 0xFF;
         m_mainactualvalue[m_actualSlave] = (m_recvBuffer[PKW_LENGTH_CHARACTERS * PKW_ANZ + 5] << 8) & 0xFF00;
