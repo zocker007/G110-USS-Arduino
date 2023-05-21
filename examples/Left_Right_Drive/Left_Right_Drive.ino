@@ -43,7 +43,7 @@ void setup() {
   // put your setup code here, to run once:
   const byte slaves[NR_SLAVES] = { 0x1, 0x2 };
 
-  quickCommissioning_t motor_data;
+  G110::quickCommissioning_t motor_data;
   motor_data.powerSetting = POWER_SETTING_EUROPE;
   motor_data.motorVoltage = 230;
   motor_data.motorCurrent = 1.9f;
