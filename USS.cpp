@@ -182,7 +182,10 @@ byte USS::BCC(const byte buffer[], const int length) const
 
 void USS::send()
 {
-    while(!(millis() > m_nextSend && (millis() - m_nextSend) < 10000));
+    if(!(millis() > m_nextSend && (millis() - m_nextSend) < 10000))
+    {
+        return;
+    }
 
     m_nextSend = millis() + m_period;
 
