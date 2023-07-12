@@ -292,13 +292,13 @@ class USS
     /**
      * @brief Fill the send buffer and send over serial.
      * 
-     * @return none
+     * @return true if telegram was send, else false
      * 
      * Fill the send buffer with control word, main setpoint, address of actual slave and parameter number and value,
      * when configured for this slave via setParameter() functions, and send over serial. Generates BCC (Block Check
      * Character), blocks until the cycle time is over from the last send. Must be called in loop() from application
      */
-    void send();
+    bool send();
 
     /**
      * @brief Receives the response from USS salves over serial.

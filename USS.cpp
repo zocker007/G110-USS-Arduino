@@ -88,8 +88,10 @@ int USS::setParameter(const uint16_t param, const uint16_t value, const int slav
 
     while(m_paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
     {
-        send();
-        ret = receive();
+        if(send())
+        {
+            ret = receive();
+        }
     }
 
     return ret;
@@ -110,8 +112,10 @@ int USS::setParameter(const uint16_t param, const uint32_t value, const int slav
 
     while(m_paramValue[0][slaveIndex] != PARAM_VALUE_EMPTY)
     {
-        send();
-        ret = receive();
+        if(send())
+        {
+            ret = receive();
+        }
     }
 
     return ret;
@@ -180,11 +184,12 @@ byte USS::BCC(const byte buffer[], const int length) const
     return ret;
 }
 
-void USS::send()
+bool USS::send()
 {
+    //while(!(millis() > m_nextSend && (millis() - m_nextSend) < 10000));
     if(!(millis() > m_nextSend && (millis() - m_nextSend) < 10000))
     {
-        return;
+        return false;
     }
 
     m_nextSend = millis() + m_period;
@@ -224,6 +229,7 @@ void USS::send()
 
     delayMicroseconds(START_DELAY_LENGTH_CHARACTERS * m_characterRuntime);
     digitalWrite(m_dePin, LOW);
+    return true;
 }
 
 int USS::receive()
