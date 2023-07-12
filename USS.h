@@ -196,6 +196,17 @@ class USS
      * @param speed Baudrate of serial peripheral used for USS communication
      * @param slaves array with USS slave addresses that are on the bus
      * @param nrSlaves Number fo USS slaves on the bus
+     * @retval 0: success
+     * @retval -1: failure
+     */
+    int begin(const long speed, const byte slaves[], const int nrSlaves);
+
+    /**
+     * @brief Function to configure the USS instance, called in setup of arduino sketch
+     * 
+     * @param speed Baudrate of serial peripheral used for USS communication
+     * @param slaves array with USS slave addresses that are on the bus
+     * @param nrSlaves Number fo USS slaves on the bus
      * @param dePin Driver enable pin for RS485 level converters that need it (like MAX485)
      * @retval 0: success
      * @retval -1: failure

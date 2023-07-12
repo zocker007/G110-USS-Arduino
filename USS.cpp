@@ -52,7 +52,7 @@ USS::USS() :
     m_sendBuffer[1] = (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ) + 2; // 2 for ADR and BCC bytes
 }
 
-int USS::begin(const long speed, const byte slaves[], const int nrSlaves, const int dePin)
+int USS::begin(const long speed, const byte slaves[], const int nrSlaves)
 {
     int telegramRuntime;
 
@@ -62,16 +62,22 @@ int USS::begin(const long speed, const byte slaves[], const int nrSlaves, const 
     memcpy(m_slaves, slaves, nrSlaves);
 
     m_nrSlaves = nrSlaves;
-    m_dePin = dePin;
     m_characterRuntime = CHARACTER_RUNTIME_BASE_US / (speed / BAUDRATE_BASE);
     telegramRuntime = USS_BUFFER_LENGTH * m_characterRuntime * 1.5f / 1000;
     Serial1.begin(speed, SERIAL_8E1);
     Serial1.setTimeout(telegramRuntime + MAX_RESP_DELAY_TIME_MS);
-    pinMode(m_dePin,OUTPUT);
-    digitalWrite(m_dePin, HIGH);
     m_period = telegramRuntime * 2 + (START_DELAY_LENGTH_CHARACTERS * m_characterRuntime / 1000) + MAX_RESP_DELAY_TIME_MS + MASTER_COMPUTE_DELAY_MS;
 
     return 0;
+}
+
+int USS::begin(const long speed, const byte slaves[], const int nrSlaves, const int dePin)
+{
+    m_dePin = dePin;
+    pinMode(m_dePin,OUTPUT);
+    digitalWrite(m_dePin, HIGH);
+
+    return begin(speed, slaves, nrSlaves);
 }
 
 int USS::setParameter(const uint16_t param, const uint16_t value, const int slaveIndex)
@@ -228,7 +234,10 @@ bool USS::send()
     Serial1.flush();
 
     delayMicroseconds(START_DELAY_LENGTH_CHARACTERS * m_characterRuntime);
-    digitalWrite(m_dePin, LOW);
+
+    if (m_dePin != -1)
+        digitalWrite(m_dePin, LOW);
+
     return true;
 }
 
@@ -268,7 +277,9 @@ int USS::receive()
         ret = -1;
     }
 
-    digitalWrite(m_dePin, HIGH);
+    if (m_dePin != -1)
+        digitalWrite(m_dePin, HIGH);
+
     m_actualSlave++;
     
     return ret;
