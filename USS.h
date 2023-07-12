@@ -36,131 +36,147 @@
 /**
  * @brief STX start byte
  */
-#define STX_BYTE_STX               0x02
+constexpr const uint8_t STX_BYTE_STX{0x02};
 
 /**
  * @brief Define for empty parameter value to check if parameter was written on the bus
  */
-#define PARAM_VALUE_EMPTY          0xA000
+constexpr const uint16_t PARAM_VALUE_EMPTY{0xA000};
 
 /**
  * @brief Flags in USS address byte (address has only 5 bits)
  */
-#define ADDR_BYTE_BROADCAST_FLAG   0x20
-#define ADDR_BYTE_MIRROR_FLAG      0x40
-#define ADDR_BYTE_SPECIAL_FLAG     0x80
+enum USSAddressFlags : uint8_t
+{
+    ADDR_BYTE_BROADCAST_FLAG  = 0x20,
+    ADDR_BYTE_MIRROR_FLAG     = 0x40,
+    ADDR_BYTE_SPECIAL_FLAG    = 0x80,
+};
 
 /**
  * @brief Bitmasks for PKE field and address byte
  */
-#define ADDR_BYTE_ADDR_MASK        0x1F
-#define PKE_WORD_PARAM_MASK        0x7FF
-#define PKE_WORD_SP_FLAG           0x800
-#define PKE_WORD_AK_MASK           0xF000
-#define PKE_WORD_AK_NO_TASK        0x0000
-#define PKE_WORD_AK_REQ_PWE        0x1000
-#define PKE_WORD_AK_CHW_PWE        0x2000
-#define PKE_WORD_AK_CHD_PWE        0x3000
+constexpr const uint8_t ADDR_BYTE_ADDR_MASK{0x1F};
+
+enum PKEBitmasks : uint16_t
+{
+    PKE_WORD_PARAM_MASK      = 0x7FF,
+    PKE_WORD_SP_FLAG         = 0x800,
+    PKE_WORD_AK_MASK         = 0xF000,
+    PKE_WORD_AK_NO_TASK      = 0x0000,
+    PKE_WORD_AK_REQ_PWE      = 0x1000,
+    PKE_WORD_AK_CHW_PWE      = 0x2000,
+    PKE_WORD_AK_CHD_PWE      = 0x3000,
+};
 
 /**
  * @brief Response code for PKE operations
  */
-#define PKE_WORD_AK_NO_RESP        0x0000
-#define PKE_WORD_AK_TRW_PWE        0x1000
-#define PKE_WORD_AK_TRD_PWE        0x2000
-#define PKE_WORD_AK_NO_RIGHTS      0x8000
-#define PKE_WORD_AK_CANT_EXECUTE   0x7000
+enum PKEResponseCodes : uint16_t
+{
+    PKE_WORD_AK_NO_RESP      = 0x0000,
+    PKE_WORD_AK_TRW_PWE      = 0x1000,
+    PKE_WORD_AK_TRD_PWE      = 0x2000,
+    PKE_WORD_AK_NO_RIGHTS    = 0x8000,
+    PKE_WORD_AK_CANT_EXECUTE = 0x7000,
+};
 
 /**
  * @brief Control word flags and descriptions
  */
-#define CTL_WORD_ON_OFF1_FLAG      0x0001
-#define CTL_WORD_ON_OFF1_OFF1      0x0000
-#define CTL_WORD_ON_OFF1_ON        0x0001
-#define CTL_WORD_OFF2_FLAG         0x0002
-#define CTL_WORD_OFF2_OFF2         0x0000
-#define CTL_WORD_OFF2_OP_COND      0x0002
-#define CTL_WORD_OFF3_FLAG         0x0004
-#define CTL_WORD_OFF3_OFF3         0x0000
-#define CTL_WORD_OFF3_OP_COND      0x0004
-#define CTL_WORD_ENABLE_FLAG       0x0008
-#define CTL_WORD_ENABLE_INHIBIT    0x0000
-#define CTL_WORD_ENABLE_ENABLE     0x0008
-#define CTL_WORD_INHIBIT_RAMP_FLAG       0x0010
-#define CTL_WORD_INHIBIT_RAMP_INHIBIT    0x0000
-#define CTL_WORD_INHIBIT_RAMP_OP_COND    0x0010
-#define CTL_WORD_ENABLE_RAMP_FLAG        0x0020
-#define CTL_WORD_ENABLE_RAMP_HOLD        0x0000
-#define CTL_WORD_ENABLE_RAMP_ENABLE      0x0020
-#define CTL_WORD_ENABLE_SETPOINT_FLAG    0x0040
-#define CTL_WORD_ENABLE_SETPOINT_INHIBIT 0x0000
-#define CTL_WORD_ENABLE_SETPOINT_ENABLE  0x0040
-#define CTL_WORD_ACK_FLAG          0x0080
-#define CTL_WORD_CTL_PLC_FLAG      0x0400
-#define CTL_WORD_CTL_PLC_NO_CTL    0x0000
-#define CTL_WORD_CTL_PLC_CTL_PLC   0x0400
+enum CtlWordFlags : uint16_t
+{
+    CTL_WORD_ON_OFF1_FLAG           = 0x0001,
+    CTL_WORD_ON_OFF1_OFF1           = 0x0000,
+    CTL_WORD_ON_OFF1_ON             = 0x0001,
+    CTL_WORD_OFF2_FLAG              = 0x0002,
+    CTL_WORD_OFF2_OFF2              = 0x0000,
+    CTL_WORD_OFF2_OP_COND           = 0x0002,
+    CTL_WORD_OFF3_FLAG              = 0x0004,
+    CTL_WORD_OFF3_OFF3              = 0x0000,
+    CTL_WORD_OFF3_OP_COND           = 0x0004,
+    CTL_WORD_ENABLE_FLAG            = 0x0008,
+    CTL_WORD_ENABLE_INHIBIT         = 0x0000,
+    CTL_WORD_ENABLE_ENABLE          = 0x0008,
+    CTL_WORD_INHIBIT_RAMP_FLAG      = 0x0010,
+    CTL_WORD_INHIBIT_RAMP_INHIBIT   = 0x0000,
+    CTL_WORD_INHIBIT_RAMP_OP_COND   = 0x0010,
+    CTL_WORD_ENABLE_RAMP_FLAG       = 0x0020,
+    CTL_WORD_ENABLE_RAMP_HOLD       = 0x0000,
+    CTL_WORD_ENABLE_RAMP_ENABLE     = 0x0020,
+    CTL_WORD_ENABLE_SETPOINT_FLAG   = 0x0040,
+    CTL_WORD_ENABLE_SETPOINT_INHIBIT= 0x0000,
+    CTL_WORD_ENABLE_SETPOINT_ENABLE = 0x0040,
+    CTL_WORD_ACK_FLAG           	= 0x0080,
+    CTL_WORD_CTL_PLC_FLAG       	= 0x0400,
+    CTL_WORD_CTL_PLC_NO_CTL     	= 0x0000,
+    CTL_WORD_CTL_PLC_CTL_PLC    	= 0x0400,
+};
 
 /**
  * @brief Status word flags and descriptions
  */
-#define STATUS_WORD_SWITCH_READY_FLAG           0x0001
-#define STATUS_WORD_SWITCH_READY                0x0001
-#define STATUS_WORD_SWITCH_NOT_READY            0x0000
-#define STATUS_WORD_READY_FLAG                  0x0002
-#define STATUS_WORD_READY                       0x0002
-#define STATUS_WORD_NOT_READY                   0x0000
-#define STATUS_WORD_OP_ENABLED_FLAG             0x0004
-#define STATUS_WORD_OP_ENABLED_ENABLED          0x0004
-#define STATUS_WORD_OP_ENABLED_INHIBIT          0x0000
-#define STATUS_WORD_FAULT_FLAG                  0x0008
-#define STATUS_WORD_FAULT_FAULT                 0x0008
-#define STATUS_WORD_FAULT_FAUlT_FREE            0x0000
-#define STATUS_WORD_OFF2_FLAG                   0x0010
-#define STATUS_WORD_OFF2_NO_OFF2                0x0010
-#define STATUS_WORD_OFF2_OFF2                   0x0000
-#define STATUS_WORD_OFF3_FLAG                   0x0020
-#define STATUS_WORD_OFF3_NO_OFF3                0x0020
-#define STATUS_WORD_OFF3_OFF3                   0x0000
-#define STATUS_WORD_SWITCH_INHIBIT_FLAG         0x0040
-#define STATUS_WORD_SWITCH_INHIBIT_INHIBIT      0x0040
-#define STATUS_WORD_SWITCH_INHIBIT_NO_INHIBIT   0x0000
-#define STATUS_WORD_ALARM_FLAG                  0x0080
-#define STATUS_WORD_ALARM_ALARM                 0x0080
-#define STATUS_WORD_ALARM_NO_ALARM              0x0000
-#define STATUS_WORD_SETPOINT_TOL_FLAG           0x0100
-#define STATUS_WORD_SETPOINT_TOL_IN_RANGE       0x0100
-#define STATUS_WORD_SETPOINT_TOL_NOT_IN_RANGE   0x0000
-#define STATUS_WORD_CTL_REQ_FLAG                0x0200
-#define STATUS_WORD_CTL_REQ_CTL_REQ             0x0200
-#define STATUS_WORD_CTL_REQ_LOCAL_OP            0x0000
-#define STATUS_WORD_F_N_REACHED_FLAG            0x0400
-#define STATUS_WORD_F_N_REACHED_REACHED         0x0400
-#define STATUS_WORD_F_N_REACHED_FALLEN_BELOW    0x0000
+enum StatusWordFlags : uint16_t
+{
+    STATUS_WORD_SWITCH_READY_FLAG         = 0x0001,
+    STATUS_WORD_SWITCH_READY              = 0x0001,
+    STATUS_WORD_SWITCH_NOT_READY          = 0x0000,
+    STATUS_WORD_READY_FLAG                = 0x0002,
+    STATUS_WORD_READY                     = 0x0002,
+    STATUS_WORD_NOT_READY                 = 0x0000,
+    STATUS_WORD_OP_ENABLED_FLAG           = 0x0004,
+    STATUS_WORD_OP_ENABLED_ENABLED        = 0x0004,
+    STATUS_WORD_OP_ENABLED_INHIBIT        = 0x0000,
+    STATUS_WORD_FAULT_FLAG                = 0x0008,
+    STATUS_WORD_FAULT_FAULT               = 0x0008,
+    STATUS_WORD_FAULT_FAUlT_FREE          = 0x0000,
+    STATUS_WORD_OFF2_FLAG                 = 0x0010,
+    STATUS_WORD_OFF2_NO_OFF2              = 0x0010,
+    STATUS_WORD_OFF2_OFF2                 = 0x0000,
+    STATUS_WORD_OFF3_FLAG                 = 0x0020,
+    STATUS_WORD_OFF3_NO_OFF3              = 0x0020,
+    STATUS_WORD_OFF3_OFF3                 = 0x0000,
+    STATUS_WORD_SWITCH_INHIBIT_FLAG       = 0x0040,
+    STATUS_WORD_SWITCH_INHIBIT_INHIBIT    = 0x0040,
+    STATUS_WORD_SWITCH_INHIBIT_NO_INHIBIT = 0x0000,
+    STATUS_WORD_ALARM_FLAG                = 0x0080,
+    STATUS_WORD_ALARM_ALARM               = 0x0080,
+    STATUS_WORD_ALARM_NO_ALARM            = 0x0000,
+    STATUS_WORD_SETPOINT_TOL_FLAG         = 0x0100,
+    STATUS_WORD_SETPOINT_TOL_IN_RANGE     = 0x0100,
+    STATUS_WORD_SETPOINT_TOL_NOT_IN_RANGE = 0x0000,
+    STATUS_WORD_CTL_REQ_FLAG              = 0x0200,
+    STATUS_WORD_CTL_REQ_CTL_REQ           = 0x0200,
+    STATUS_WORD_CTL_REQ_LOCAL_OP          = 0x0000,
+    STATUS_WORD_F_N_REACHED_FLAG          = 0x0400,
+    STATUS_WORD_F_N_REACHED_REACHED       = 0x0400,
+    STATUS_WORD_F_N_REACHED_FALLEN_BELOW  = 0x0000,
+};
 
 /**
  * @brief Max number of USS Slaves
  */
-#define USS_SLAVES                 2
+constexpr const int USS_SLAVES{2};
 
 /**
  * @brief number of PZD and PKW fields and length in bytes
  */
-#define PZD_ANZ                    1
-#define PZD_LENGTH_CHARACTERS      4
-#define PKW_ANZ                    1
-#define PKW_LENGTH_CHARACTERS      8
+constexpr const int PZD_ANZ{1};
+constexpr const int PZD_LENGTH_CHARACTERS{4};
+constexpr const int PKW_ANZ{1};
+constexpr const int PKW_LENGTH_CHARACTERS{8};
 
 /**
  * @brief USS parameters
  */
-#define CHARACTER_RUNTIME_BASE_US  1150
-#define BAUDRATE_BASE              9600
-#define MAX_RESP_DELAY_TIME_MS     20
-#define MASTER_COMPUTE_DELAY_MS    20
-#define START_DELAY_LENGTH_CHARACTERS 2
-#define TELEGRAM_OVERHEAD_CHARACTERS 4
+constexpr const int CHARACTER_RUNTIME_BASE_US{1150};
+constexpr const int BAUDRATE_BASE{9600};
+constexpr const int MAX_RESP_DELAY_TIME_MS{20};
+constexpr const int MASTER_COMPUTE_DELAY_MS{20};
+constexpr const int START_DELAY_LENGTH_CHARACTERS{2};
+constexpr const int TELEGRAM_OVERHEAD_CHARACTERS{4};
 
-#define USS_BUFFER_LENGTH               (TELEGRAM_OVERHEAD_CHARACTERS + (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ))
+constexpr const int USS_BUFFER_LENGTH{(TELEGRAM_OVERHEAD_CHARACTERS + (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ))};
 
 class USS
 {

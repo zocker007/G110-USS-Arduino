@@ -35,168 +35,213 @@
 /**
  * control word flags specific to the inverter
  */
-#define CTL_WORD_REVERSE_FALG               0x0800
+enum CtlWordFlagsG110 : uint16_t
+{
+    CTL_WORD_REVERSE_FALG              = 0x0800,
+};
 
 /**
  * Status word flags specific to the inverter
  */
-#define STATUS_WORD_CURRENT_LIMIT_FLAG      0x0800
-#define STATUS_WORD_MOTOR_OVERLOAD_FLAG     0x2000
-#define STATUS_WORD_MOTOR_RUNS_RIGHT_FLAG   0x4000
-#define STATUS_WORD_INVERTER_OVERLOAD_FLAG  0x8000
+enum StatusWordFlagsG110 : uint16_t
+{
+    STATUS_WORD_CURRENT_LIMIT_FLAG      = 0x0800,
+    STATUS_WORD_MOTOR_OVERLOAD_FLAG     = 0x2000,
+    STATUS_WORD_MOTOR_RUNS_RIGHT_FLAG   = 0x4000,
+    STATUS_WORD_INVERTER_OVERLOAD_FLAG  = 0x8000,
+};
 
 /**
  * Parameter values user access level for parameters, refer to G110 user manual
  */
-#define USER_ACCESS_LEVEL_STD               (uint16_t)1
-#define USER_ACCESS_LEVEL_EXT               (uint16_t)2
-#define USER_ACCESS_LEVEL_EXPERT            (uint16_t)3
-#define USER_ACCESS_LEVEL_RESERVED          (uint16_t)4
+enum UserLevel : uint16_t
+{
+    USER_ACCESS_LEVEL_STD        = 1,
+    USER_ACCESS_LEVEL_EXT        = 2,
+    USER_ACCESS_LEVEL_EXPERT     = 3,
+    USER_ACCESS_LEVEL_RESERVED   = 4,
+};
 
 /**
  * Parameter values quick commisioning operating modes, refer to G110 user manual
  */
-#define QUICK_COMMISSIONING_READY           (uint16_t)0
-#define QUICK_COMMISSIONING_QUICK_COMM      (uint16_t)1
-#define QUICK_COMMISSIONING_INVERTER        (uint16_t)2
-#define QUICK_COMMISSIONING_DOWNLOAD        (uint16_t)29
-#define QUICK_COMMISSIONING_FACTORY_SETTING (uint16_t)30
+enum QuickCommModes : uint16_t
+{
+    QUICK_COMMISSIONING_READY           = 0,
+    QUICK_COMMISSIONING_QUICK_COMM      = 1,
+    QUICK_COMMISSIONING_INVERTER        = 2,
+    QUICK_COMMISSIONING_DOWNLOAD        = 29,
+    QUICK_COMMISSIONING_FACTORY_SETTING = 30,
+};
 
 /**
  * Parameter values power settings
  */
-#define POWER_SETTING_EUROPE                (uint16_t)0
-#define POWER_SETTING_NORTH_AMERICA_HP      (uint16_t)1
-#define POWER_SETTING_NORTH_AMERICA_KW      (uint16_t)2
+enum PowerSetting : uint16_t
+{
+    POWER_SETTING_EUROPE             = 0,
+    POWER_SETTING_NORTH_AMERICA_HP   = 1,
+    POWER_SETTING_NORTH_AMERICA_KW   = 2,
+};
 
 /**
  * Parameter values motor cooling
  */
-#define MOTOR_COOLING_SELF_COOLED           (uint16_t)0
-#define MOTOR_COOLING_FORCE_COOLED          (uint16_t)1
+enum MotorCooling : uint16_t
+{
+    MOTOR_COOLING_SELF_COOLED   = 0,
+    MOTOR_COOLING_FORCE_COOLED  = 1,
+};
 
 /**
  * Parameter values command source
  */
-#define COMMAND_SOURCE_DEFAULT              (uint16_t)0
-#define COMMAND_SOURCE_BOP                  (uint16_t)1
-#define COMMAND_SOURCE_TERMINAL             (uint16_t)2
-#define COMMAND_SOURCE_USS                  (uint16_t)5
+enum CmdSource : uint16_t
+{
+    COMMAND_SOURCE_DEFAULT   = 0,
+    COMMAND_SOURCE_BOP       = 1,
+    COMMAND_SOURCE_TERMINAL  = 2,
+    COMMAND_SOURCE_USS       = 5,
+};
 
 /**
  * Parameter values frequency setpoint
  */
-#define FREQ_SETPOINT_NONE                  (uint16_t)0
-#define FREQ_SETPOINT_MOP                   (uint16_t)1
-#define FREQ_SETPOINT_ANALOG                (uint16_t)2
-#define FREQ_SETPOINT_FIXED                 (uint16_t)3
-#define FREQ_SETPOINT_USS                   (uint16_t)5
+enum FreqSetpoint : uint16_t
+{
+    FREQ_SETPOINT_NONE       = 0,
+    FREQ_SETPOINT_MOP        = 1,
+    FREQ_SETPOINT_ANALOG     = 2,
+    FREQ_SETPOINT_FIXED      = 3,
+    FREQ_SETPOINT_USS        = 5,
+};
 
 /**
  * Parameter value reset
  */
-#define FACTORY_RESET_PARAMETER_RESET       (uint16_t)1
+constexpr const uint16_t FACTORY_RESET_PARAMETER_RESET{1};
 
 /**
  * Parameter values control mode
  */
-#define CTL_MODE_V_F_LINEAR                 (uint16_t)0
-#define CTL_MODE_V_F_QUADRATIC              (uint16_t)2
-#define CTL_MODE_V_F_PROGRAMMABLE           (uint16_t)3
+enum CtlMode : uint16_t
+{
+    CTL_MODE_V_F_LINEAR           = 0,
+    CTL_MODE_V_F_QUADRATIC        = 2,
+    CTL_MODE_V_F_PROGRAMMABLE     = 3,
+};
 
 /**
  * Parameter values end quick commisioning mode
  */
-#define END_QUICK_COMM_NONE                 (uint16_t)0
-#define END_QUICK_COMM_RESET                (uint16_t)1
-#define END_QUICK_COMM_NORMAL               (uint16_t)2
-#define END_QUICK_COMM_ONLY_MOTOR_DATA      (uint16_t)3
+enum EndQuickCommissioning : uint16_t
+{
+    END_QUICK_COMM_NONE             = 0,
+    END_QUICK_COMM_RESET            = 1,
+    END_QUICK_COMM_NORMAL           = 2,
+    END_QUICK_COMM_ONLY_MOTOR_DATA  = 3,
+};
 
 /**
  * Parameter values PKW length
  */
-#define USS_PKW_LENGTH_NONE                 (uint16_t)0
-#define USS_PKW_LENGTH_3_WORDS              (uint16_t)3
-#define USS_PKW_LENGTH_4_WORDS              (uint16_t)4
-#define USS_PKW_LENGTH_VARIABLE             (uint16_t)127
+enum PKWLength : uint16_t
+{
+    USS_PKW_LENGTH_NONE            = 0,
+    USS_PKW_LENGTH_3_WORDS         = 3,
+    USS_PKW_LENGTH_4_WORDS         = 4,
+    USS_PKW_LENGTH_VARIABLE        = 127,
+};
 
 /**
  * Parameter values USS baudrate
  */
-#define USS_BAUDRATE_1200_BAUD              (uint16_t)3
-#define USS_BAUDRATE_2400_BAUD              (uint16_t)4
-#define USS_BAUDRATE_4800_BAUD              (uint16_t)5
-#define USS_BAUDRATE_9600_BAUD              (uint16_t)6
-#define USS_BAUDRATE_19200_BAUD             (uint16_t)7
-#define USS_BAUDRATE_38400_BAUD             (uint16_t)8
-#define USS_BAUDRATE_57600_BAUD             (uint16_t)9
+enum USSBaudrates : uint16_t
+{
+    USS_BAUDRATE_1200_BAUD         = 3,
+    USS_BAUDRATE_2400_BAUD         = 4,
+    USS_BAUDRATE_4800_BAUD         = 5,
+    USS_BAUDRATE_9600_BAUD         = 6,
+    USS_BAUDRATE_19200_BAUD        = 7,
+    USS_BAUDRATE_38400_BAUD        = 8,
+    USS_BAUDRATE_57600_BAUD        = 9,
+};
 
 /**
  * Parameter values calculate motor parameters
  */
-#define CALC_MOTOR_PARAMS_NONE              (uint16_t)0
-#define CALC_MOTOR_PARAMS_COMPLETE          (uint16_t)1
+enum CalcMotorParameters : uint16_t
+{
+    CALC_MOTOR_PARAMS_NONE           = 0,
+    CALC_MOTOR_PARAMS_COMPLETE       = 1,
+};
 
 /**
  * Parameter values function of digital input pin
  */
-#define FUN_DIGITAL_IN_DISABLED             (uint16_t)0
-#define FUN_DIGITAL_IN_ON_OFF1              (uint16_t)1
-#define FUN_DIGITAL_IN_ON_REV_OFF1          (uint16_t)2
-#define FUN_DIGITAL_IN_OFF2                 (uint16_t)3
-#define FUN_DIGITAL_IN_OFF3                 (uint16_t)4
-#define FUN_DIGITAL_IN_FAULT_ACK            (uint16_t)9
-#define FUN_DIGITAL_IN_JOG_RIGHT            (uint16_t)10
-#define FUN_DIGITAL_IN_JOG_LEFT             (uint16_t)11
-#define FUN_DIGITAL_IN_REVERSE              (uint16_t)12
-#define FUN_DIGITAL_IN_MOP_UP               (uint16_t)13
-#define FUN_DIGITAL_IN_MOP_DOWN             (uint16_t)14
-#define FUN_DIGITAL_IN_FIXED_FREQ           (uint16_t)15
-#define FUN_DIGITAL_IN_FIXED_FREQ_ON        (uint16_t)16
-#define FUN_DIGITAL_IN_LOCA_REMOTE          (uint16_t)21
-#define FUN_DIGITAL_IN_DC_BRAKE             (uint16_t)25
-#define FUN_DIGITAL_IN_EXT_TRIP             (uint16_t)29
+enum DigitalInputFct : uint16_t
+{
+    FUN_DIGITAL_IN_DISABLED          = 0,
+    FUN_DIGITAL_IN_ON_OFF1           = 1,
+    FUN_DIGITAL_IN_ON_REV_OFF1       = 2,
+    FUN_DIGITAL_IN_OFF2              = 3,
+    FUN_DIGITAL_IN_OFF3              = 4,
+    FUN_DIGITAL_IN_FAULT_ACK         = 9,
+    FUN_DIGITAL_IN_JOG_RIGHT         = 10,
+    FUN_DIGITAL_IN_JOG_LEFT          = 11,
+    FUN_DIGITAL_IN_REVERSE           = 12,
+    FUN_DIGITAL_IN_MOP_UP            = 13,
+    FUN_DIGITAL_IN_MOP_DOWN          = 14,
+    FUN_DIGITAL_IN_FIXED_FREQ        = 15,
+    FUN_DIGITAL_IN_FIXED_FREQ_ON     = 16,
+    FUN_DIGITAL_IN_LOCA_REMOTE       = 21,
+    FUN_DIGITAL_IN_DC_BRAKE          = 25,
+    FUN_DIGITAL_IN_EXT_TRIP          = 29,
+};
 
 /**
  * Parameter numbers
  */
-#define PARAM_NR_END_QUICK_COMM             3900
-#define PARAM_NR_USS_PKW_LENGTH             2013
-#define PARAM_NR_USS_ADDRESS                2011
-#define PARAM_NR_USS_BAUDRATE               2010
-#define PARAM_NR_PULSE_FREQ_KHZ             1800
-#define PARAM_NR_CTL_MODE                   1300
-#define PARAM_NR_OFF3_RAMP_DOWN_TIME_S      1135
-#define PARAM_NR_ROUNDING_TIME_S            1130
-#define PARAM_NR_RAMP_DOWN_TIME_S           1121
-#define PARAM_NR_RAMP_UP_TIME_S             1120
-#define PARAM_NR_MAX_FREQ_HZ                1082
-#define PARAM_NR_MIN_FREQ_HZ                1080
-#define PARAM_NR_SEL_FREQ_SETPOINT          1000
-#define PARAM_NR_FACTORY_RESET              970
-#define PARAM_NR_FUN_DIGITAL_IN_3           704
-#define PARAM_NR_FUN_DIGITAL_IN_2           703
-#define PARAM_NR_FUN_DIGITAL_IN_1           702
-#define PARAM_NR_FUN_DIGITAL_IN_0           701
-#define PARAM_NR_SEL_CMD_SOURCE             700
-#define PARAM_NR_MOTOR_OVERLOAD_FACTOR      640
-#define PARAM_NR_CALC_MOTOR_PARAMS          340           
-#define PARAM_NR_MOTOR_COOLING              335
-#define PARAM_NR_MOTOR_SPEED_PER_MINUTE     311
-#define PARAM_NR_MOTOR_FREQ_HZ              310
-#define PARAM_NR_MOTOR_EFFICIENCY_FACTOR    309
-#define PARAM_NR_MOTOR_COS_PHI              308
-#define PARAM_NR_MOTOR_POWER_KW_HP          307
-#define PARAM_NR_MOTOR_CURRENT_A            305
-#define PARAM_NR_MOTOR_VOLTAGE_V            304
-#define PARAM_NR_POWER_SETING               100
-#define PARAM_NR_COMMISSIONING_PARAM        10
-#define PARAM_NR_USER_ACCESS_LEVEL          3
+enum ParameterNr : uint16_t
+{
+    PARAM_NR_END_QUICK_COMM           = 3900,
+    PARAM_NR_USS_PKW_LENGTH           = 2013,
+    PARAM_NR_USS_ADDRESS              = 2011,
+    PARAM_NR_USS_BAUDRATE             = 2010,
+    PARAM_NR_PULSE_FREQ_KHZ           = 1800,
+    PARAM_NR_CTL_MODE                 = 1300,
+    PARAM_NR_OFF3_RAMP_DOWN_TIME_S    = 1135,
+    PARAM_NR_ROUNDING_TIME_S          = 1130,
+    PARAM_NR_RAMP_DOWN_TIME_S         = 1121,
+    PARAM_NR_RAMP_UP_TIME_S           = 1120,
+    PARAM_NR_MAX_FREQ_HZ              = 1082,
+    PARAM_NR_MIN_FREQ_HZ              = 1080,
+    PARAM_NR_SEL_FREQ_SETPOINT        = 1000,
+    PARAM_NR_FACTORY_RESET            = 970,
+    PARAM_NR_FUN_DIGITAL_IN_3         = 704,
+    PARAM_NR_FUN_DIGITAL_IN_2         = 703,
+    PARAM_NR_FUN_DIGITAL_IN_1         = 702,
+    PARAM_NR_FUN_DIGITAL_IN_0         = 701,
+    PARAM_NR_SEL_CMD_SOURCE           = 700,
+    PARAM_NR_MOTOR_OVERLOAD_FACTOR    = 640,
+    PARAM_NR_CALC_MOTOR_PARAMS        = 340,
+    PARAM_NR_MOTOR_COOLING            = 335,
+    PARAM_NR_MOTOR_SPEED_PER_MINUTE   = 311,
+    PARAM_NR_MOTOR_FREQ_HZ            = 310,
+    PARAM_NR_MOTOR_EFFICIENCY_FACTOR  = 309,
+    PARAM_NR_MOTOR_COS_PHI            = 308,
+    PARAM_NR_MOTOR_POWER_KW_HP        = 307,
+    PARAM_NR_MOTOR_CURRENT_A          = 305,
+    PARAM_NR_MOTOR_VOLTAGE_V          = 304,
+    PARAM_NR_POWER_SETING             = 100,
+    PARAM_NR_COMMISSIONING_PARAM      = 10,
+    PARAM_NR_USER_ACCESS_LEVEL        = 3,
+};
 
 /**
  * Number used in calculation of main setpoint from given frequency in Hz as floating point
  */
-#define FREQUENCY_CALC_BASE                 0x4000U
+constexpr const uint16_t FREQUENCY_CALC_BASE{0x4000U};
 
 class G110
 {
