@@ -178,6 +178,7 @@ constexpr const int TELEGRAM_OVERHEAD_CHARACTERS{4};
 
 constexpr const int USS_BUFFER_LENGTH{(TELEGRAM_OVERHEAD_CHARACTERS + (PKW_LENGTH_CHARACTERS * PKW_ANZ) + (PZD_LENGTH_CHARACTERS * PZD_ANZ))};
 
+template<size_t nrSlaves>
 class USS
 {
     public:
@@ -195,23 +196,21 @@ class USS
      * 
      * @param speed Baudrate of serial peripheral used for USS communication
      * @param slaves array with USS slave addresses that are on the bus
-     * @param nrSlaves Number fo USS slaves on the bus
      * @retval 0: success
      * @retval -1: failure
      */
-    int begin(const long speed, const byte slaves[], const int nrSlaves);
+    int begin(const long speed, const byte slaves[]);
 
     /**
      * @brief Function to configure the USS instance, called in setup of arduino sketch
      * 
      * @param speed Baudrate of serial peripheral used for USS communication
      * @param slaves array with USS slave addresses that are on the bus
-     * @param nrSlaves Number fo USS slaves on the bus
      * @param dePin Driver enable pin for RS485 level converters that need it (like MAX485)
      * @retval 0: success
      * @retval -1: failure
      */
-    int begin(const long speed, const byte slaves[], const int nrSlaves, const int dePin);
+    int begin(const long speed, const byte slaves[], const int dePin);
 
     /**
      * @brief Set parameter as word value (2 byte) to a given USS slave
@@ -353,16 +352,16 @@ class USS
      */
     byte BCC(const byte buffer[], const int length) const;
 
-    byte m_slaves[USS_SLAVES];
+    byte m_slaves[nrSlaves];
     int m_nrSlaves;
     int m_actualSlave;
     byte m_sendBuffer[USS_BUFFER_LENGTH];
     byte m_recvBuffer[USS_BUFFER_LENGTH];
-    uint16_t m_mainsetpoint[USS_SLAVES];
-    uint16_t m_mainactualvalue[USS_SLAVES];
-    uint16_t m_ctlword[USS_SLAVES];
-    uint16_t m_statusword[USS_SLAVES];
-    uint16_t m_paramValue[PKW_LENGTH_CHARACTERS / 2][USS_SLAVES];
+    uint16_t m_mainsetpoint[nrSlaves];
+    uint16_t m_mainactualvalue[nrSlaves];
+    uint16_t m_ctlword[nrSlaves];
+    uint16_t m_statusword[nrSlaves];
+    uint16_t m_paramValue[PKW_LENGTH_CHARACTERS / 2][nrSlaves];
     unsigned long m_nextSend;             // timestamp of next send in ms, compare to millis()
     unsigned long m_period;               // cycle time between sending frames in ms
     int m_characterRuntime;

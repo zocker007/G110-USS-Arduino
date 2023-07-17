@@ -31,6 +31,7 @@
 #define G110_H
 
 #include "USS.h"
+#include "USS.cpp"
 
 /**
  * control word flags specific to the inverter
@@ -250,7 +251,7 @@ class G110
     /**
      * @struct structure definition for G110 quick commissioning parameters
      */
-    typedef struct
+    struct quickCommissioning_t
     {
         uint16_t powerSetting;
         uint16_t motorVoltage;
@@ -271,14 +272,14 @@ class G110
         float OFF3rampdownTime;
         uint16_t ctlMode;
         uint16_t endQuickComm;
-    } quickCommissioning_t;
+    };
 
     /**
      * @brief Constructor for G110 class, initializes the members
      * 
      * @return none
      */
-    G110();
+    G110(USS<USS_SLAVES> &interface,  const int index);
 
     /**
      * @brief Function to configure the G110 instance, called in setup of arduino sketch
@@ -292,7 +293,7 @@ class G110
      * motor parameters. Sets reference frequency for calculation of main setpoint to given motor
      * frequency. Sets control word to operating conditions.
      */
-    int begin(USS *interface, const quickCommissioning_t &quickCommData, const int index);
+    int begin(const quickCommissioning_t &quickCommData);
 
     /**
      * @brief Set frequency of inverter, calculates main setpoint and sets reverse flag appropriately
@@ -430,7 +431,7 @@ class G110
     
     private:
 
-    USS *m_interface;
+    USS<USS_SLAVES> &m_interface;
     float m_refFreq;
     int m_index;
 };

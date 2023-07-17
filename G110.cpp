@@ -28,21 +28,16 @@
 
 #include "G110.h"
 
-G110::G110() :
-    m_interface(nullptr),
+G110::G110(USS<USS_SLAVES> &interface,  const int index) :
+    m_interface(interface),
     m_refFreq(0.0),
-    m_index(0)
+    m_index(index)
 {
 }
 
-int G110::begin(USS *interface, const G110::quickCommissioning_t &quickCommData, const int index)
+int G110::begin(const G110::quickCommissioning_t &quickCommData)
 {
-    if(interface == nullptr)
-        return -1;
-
-    m_interface = interface;
     m_refFreq = quickCommData.motorFreq;
-    m_index = index;
     int err = 0;
 
     err += setParameter(PARAM_NR_USER_ACCESS_LEVEL, USER_ACCESS_LEVEL_EXPERT);
@@ -85,9 +80,6 @@ void G110::setFrequency(float freq) const
 {
     bool reverse = false;
 
-    if(m_interface == nullptr)
-        return;
-
     if(freq < 0)
     {
         reverse = true;
@@ -101,7 +93,7 @@ void G110::setFrequency(float freq) const
     else
         clearCtlFlag(CTL_WORD_REVERSE_FALG);
 
-    m_interface->setMainsetpoint(f_hex, m_index);
+    m_interface.setMainsetpoint(f_hex, m_index);
     
 }
 
@@ -118,18 +110,12 @@ void G110::setOFF1() const
 
 void G110::setCtlFlag(const uint16_t flags) const
 {
-    if(m_interface == nullptr)
-        return;
-
-    m_interface->setCtlFlag(flags, m_index);
+    m_interface.setCtlFlag(flags, m_index);
 }
 
 void G110::clearCtlFlag(const uint16_t flags) const
 {
-    if(m_interface == nullptr)
-        return;
-
-    m_interface->clearCtlFlag(flags, m_index);
+    m_interface.clearCtlFlag(flags, m_index);
 }
 
 bool G110::running() const
@@ -159,18 +145,12 @@ bool G110::reverse() const
 
 bool G110::checkStatusFlag(const uint16_t flag) const
 {
-    if(m_interface == nullptr)
-        return false;
-
-    return m_interface->checkStatusFlag(flag, m_index);
+    return m_interface.checkStatusFlag(flag, m_index);
 }
 
 float G110::getFrequency() const
 {
-    if(m_interface == nullptr)
-        return -1.0;
-
-    uint16_t f_hex = m_interface->getActualvalue(m_index);
+    uint16_t f_hex = m_interface.getActualvalue(m_index);
     // f[Hz] = (f(hex) / FREQUENCY_CALC_BASE) * refFreq
     return (static_cast<float>(f_hex) / static_cast<float>(FREQUENCY_CALC_BASE)) * m_refFreq;
 }
@@ -184,24 +164,15 @@ void G110::reset() const
 
 int G110::setParameter(const uint16_t param, const uint16_t value) const
 {
-    if(m_interface == nullptr)
-        return -1;
-
-    return m_interface->setParameter(param, value, m_index);
+    return m_interface.setParameter(param, value, m_index);
 }
 
 int G110::setParameter(const uint16_t param, const uint32_t value) const
 {
-     if(m_interface == nullptr)
-        return -1;
-
-    return m_interface->setParameter(param, value, m_index);
+    return m_interface.setParameter(param, value, m_index);
 }
 
 int G110::setParameter(const uint16_t param, const float value) const
 {
-     if(m_interface == nullptr)
-        return -1;
-
-    return m_interface->setParameter(param, value, m_index);
+    return m_interface.setParameter(param, value, m_index);
 }
