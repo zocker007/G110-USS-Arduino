@@ -204,12 +204,12 @@ template<size_t nrSlaves>
 bool USS<nrSlaves>::send()
 {
     //while(!(millis() > m_nextSend && (millis() - m_nextSend) < 10000));
-    if(!(millis() > m_nextSend && (millis() - m_nextSend) < 10000))
+    if((millis() - m_lastSend) < m_period)
     {
         return false;
     }
 
-    m_nextSend = millis() + m_period;
+    m_lastSend = millis();
 
     if(m_actualSlave == nrSlaves)
         m_actualSlave = 0;

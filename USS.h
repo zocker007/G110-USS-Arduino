@@ -362,7 +362,7 @@ class USS
     uint16_t m_ctlword[nrSlaves];
     uint16_t m_statusword[nrSlaves];
     uint16_t m_paramValue[PKW_LENGTH_CHARACTERS / 2][nrSlaves];
-    unsigned long m_nextSend;             // timestamp of next send in ms, compare to millis()
+    unsigned long m_lastSend;             // timestamp of last send in ms, compared to millis()
     unsigned long m_period;               // cycle time between sending frames in ms
     int m_characterRuntime;
     int m_dePin;
